@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import type { ModelDefinitionConfig } from "../config/types.models.js";
+import { autoReauthDeepSeek } from "./deepseek-auto-reauth.js";
 
 export interface DeepSeekPowChallenge {
   algorithm: string;
@@ -42,6 +43,8 @@ interface DeepSeekWasmExports extends WebAssembly.Exports {
 }
 
 interface DeepSeekPowResponse {
+  code?: number;
+  msg?: string;
   data?: {
     biz_data?: {
       challenge?: DeepSeekPowChallenge;
@@ -62,6 +65,7 @@ export class DeepSeekWebClient {
   private bearer: string;
   private userAgent: string;
   private deviceId: string = "";
+  private autoReauthAttempted: boolean = false;
 
   constructor(options: DeepSeekWebClientOptions | string) {
     let finalOptions: DeepSeekWebClientOptions;
@@ -133,7 +137,7 @@ export class DeepSeekWebClient {
       }),
     });
 
-    if (!res.ok) {
+    if (!res.ok && res.status !== 401) {
       const errorText = await res.text();
       console.error(`[DeepSeekWebClient] Failed to create PoW challenge: ${res.status}`, errorText);
       throw new Error(`Failed to create PoW challenge: ${res.status} ${errorText}`);
@@ -141,14 +145,40 @@ export class DeepSeekWebClient {
 
     const data = (await res.json()) as DeepSeekPowResponse;
     console.log(`[DeepSeekWebClient] PoW data full-log:`, JSON.stringify(data));
+    console.log(`[DeepSeekWebClient] Debug: res.status=${res.status}, data.code=${data.code}`);
+
+    if (res.status === 401 || data.code === 40002) {
+      // 检测到认证失败，尝试自动重新认证
+      if (!this.autoReauthAttempted) {
+        console.log("[DeepSeekWebClient] 检测到认证失败 (40002)，尝试自动重新认证...");
+        this.autoReauthAttempted = true;
+
+        const newCreds = await autoReauthDeepSeek();
+        if (newCreds) {
+          // 更新当前实例的凭据
+          this.cookie = newCreds.cookie;
+          this.bearer = newCreds.bearer;
+          this.userAgent = newCreds.userAgent;
+
+          console.log("[DeepSeekWebClient] 凭据已更新，重试请求...");
+          // 重置标志位并重试
+          this.autoReauthAttempted = false;
+          return this.createPowChallenge(targetPath);
+        }
+      }
+
+      throw new Error("DeepSeek 鉴权令牌 (Bearer) 缺失或已过期。自动重新认证失败，请手动运行 onboard 命令重新登录。");
+    }
 
     const challenge = data.data?.biz_data?.challenge || data.data?.challenge || data.challenge;
     if (!challenge) {
       console.error(
-        `[DeepSeekWebClient] Critical Error: PoW challenge missing in response! Keys present:`,
-        Object.keys(data),
+        `[DeepSeekWebClient] Critical Error: PoW challenge missing in response! Status: ${res.status}, Body: ${JSON.stringify(data)}`,
       );
-      throw new Error(`PoW challenge missing in response`);
+      if (data.msg) {
+        throw new Error(`DeepSeek API 错误: ${data.msg} (代码: ${data.code})。建议重新运行向导获取凭据。`);
+      }
+      throw new Error("DeepSeek 响应中缺失 PoW 挑战数据。这通常是因为鉴权信息不完全导致识别失败。请重新登录抓取凭据。");
     }
 
     console.log(`[DeepSeekWebClient] Challenge extracted successfully:`, challenge);

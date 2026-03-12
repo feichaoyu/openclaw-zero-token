@@ -20,8 +20,8 @@
 
 ```bash
 # 1. 编译
-npm install
-npm run build
+pnpm install
+pnpm run build
 pnpm ui:build   # 构建 Web UI
 
 # 2. 打开浏览器调试
@@ -92,8 +92,8 @@ pnpm ui:build   # 构建 Web UI
 
 ```bash
 # 1. Build
-npm install
-npm run build
+pnpm install
+pnpm run build
 
 # 2. Open browser debug mode
 ./start-chrome-debug.sh

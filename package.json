@@ -36,6 +36,7 @@
     }
   },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "build": "pnpm canvas:a2ui:bundle && tsdown && (test -f tsconfig.plugin-sdk.dts.json && pnpm run build:plugin-sdk:dts && node --import tsx scripts/write-plugin-sdk-entry-dts.ts || true) && node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/copy-export-html-templates.ts && node --import tsx scripts/write-build-info.ts && node --import tsx scripts/write-cli-compat.ts",
     "build:plugin-sdk:dts": "tsc -p tsconfig.plugin-sdk.dts.json",
     "canvas:a2ui:bundle": "node scripts/bundle-a2ui.mjs",
@@ -155,7 +156,7 @@
     "ollama": "^0.6.3",
     "oxfmt": "0.33.0",
     "oxlint": "^1.48.0",
-    "oxlint-tsgolint": "^0.14.1",
+    "oxlint-tsgolint": "^0.16.0",
     "rolldown": "1.0.0-rc.5",
     "tsdown": "^0.20.3",
     "tsx": "^4.21.0",

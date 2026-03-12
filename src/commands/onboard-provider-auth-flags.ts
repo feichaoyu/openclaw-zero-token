@@ -24,6 +24,17 @@ type OnboardProviderAuthOptionKey = keyof Pick<
   | "siliconflowGlobalApiKey"
   | "siliconflowCnApiKey"
   | "manusApiKey"
+  | "claudeWebCookie"
+  | "deepseekWebCookie"
+  | "doubaoWebCookie"
+  | "chatgptWebCookie"
+  | "qwenWebCookie"
+  | "kimiWebCookie"
+  | "geminiWebCookie"
+  | "grokWebCookie"
+  | "zWebCookie"
+  | "glmIntlWebCookie"
+  | "manusWebCookie"
 >;
 
 export type OnboardProviderAuthFlag = {
@@ -189,5 +200,82 @@ export const ONBOARD_PROVIDER_AUTH_FLAGS: ReadonlyArray<OnboardProviderAuthFlag>
     cliFlag: "--manus-api-key",
     cliOption: "--manus-api-key <key>",
     description: "Manus API key (Credit-based, free tier)",
+  },
+  {
+    optionKey: "claudeWebCookie",
+    authChoice: "claude-web",
+    cliFlag: "--claude-web-cookie",
+    cliOption: "--claude-web-cookie <key>",
+    description: "Claude Web session cookie",
+  },
+  {
+    optionKey: "doubaoWebCookie",
+    authChoice: "doubao-web",
+    cliFlag: "--doubao-web-cookie",
+    cliOption: "--doubao-web-cookie <key>",
+    description: "Doubao Web session cookie",
+  },
+  {
+    optionKey: "deepseekWebCookie",
+    authChoice: "deepseek-web",
+    cliFlag: "--deepseek-web-cookie",
+    cliOption: "--deepseek-web-cookie <key>",
+    description: "DeepSeek Web session cookie",
+  },
+  {
+    optionKey: "chatgptWebCookie",
+    authChoice: "chatgpt-web",
+    cliFlag: "--chatgpt-web-cookie",
+    cliOption: "--chatgpt-web-cookie <key>",
+    description: "ChatGPT Web session cookie",
+  },
+  {
+    optionKey: "qwenWebCookie",
+    authChoice: "qwen-web",
+    cliFlag: "--qwen-web-cookie",
+    cliOption: "--qwen-web-cookie <key>",
+    description: "Qwen Web session cookie",
+  },
+  {
+    optionKey: "kimiWebCookie",
+    authChoice: "kimi-web",
+    cliFlag: "--kimi-web-cookie",
+    cliOption: "--kimi-web-cookie <key>",
+    description: "Kimi Web session cookie",
+  },
+  {
+    optionKey: "geminiWebCookie",
+    authChoice: "gemini-web",
+    cliFlag: "--gemini-web-cookie",
+    cliOption: "--gemini-web-cookie <key>",
+    description: "Gemini Web session cookie",
+  },
+  {
+    optionKey: "grokWebCookie",
+    authChoice: "grok-web",
+    cliFlag: "--grok-web-cookie",
+    cliOption: "--grok-web-cookie <key>",
+    description: "Grok Web session cookie",
+  },
+  {
+    optionKey: "zWebCookie",
+    authChoice: "z-web",
+    cliFlag: "--z-web-cookie",
+    cliOption: "--z-web-cookie <key>",
+    description: "Z.AI Web session cookie",
+  },
+  {
+    optionKey: "glmIntlWebCookie",
+    authChoice: "glm-intl-web",
+    cliFlag: "--glm-intl-web-cookie",
+    cliOption: "--glm-intl-web-cookie <key>",
+    description: "GLM Intl Web session cookie",
+  },
+  {
+    optionKey: "manusWebCookie",
+    authChoice: "manus-web",
+    cliFlag: "--manus-web-cookie",
+    cliOption: "--manus-web-cookie <key>",
+    description: "Manus Web session cookie",
   },
 ];

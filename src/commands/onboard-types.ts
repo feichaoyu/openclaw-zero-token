@@ -60,6 +60,8 @@ export type AuthChoice =
   | "glm-web"
   | "glm-intl-web"
   | "manus-api-key"
+  | "manus-web"
+  | "z-web"
   | "custom-api-key"
   | "skip";
 export type AuthChoiceGroupId =
@@ -100,6 +102,8 @@ export type AuthChoiceGroupId =
   | "glm-web"
   | "glm-intl-web"
   | "manus-api"
+  | "manus-web"
+  | "z-web"
   | "custom";
 export type GatewayAuthChoice = "token" | "password";
 export type ResetScope = "config" | "config+creds+sessions" | "full";
@@ -151,6 +155,7 @@ export type OnboardOptions = {
   qianfanApiKey?: string;
   siliconflowGlobalApiKey?: string;
   siliconflowCnApiKey?: string;
+  claudeWebCookie?: string;
   deepseekWebCookie?: string;
   doubaoWebCookie?: string;
   chatgptWebCookie?: string;

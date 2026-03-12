@@ -1,0 +1,45 @@
+{
+  "name": "openclaw-deployer",
+  "version": "1.0.0",
+  "description": "OpenClaw Zero Token 部署向导",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:mac": "ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ electron-builder --mac",
+    "build:win": "ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ electron-builder --win",
+    "build:linux": "ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ electron-builder --linux",
+    "build:all": "ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ electron-builder -mwl"
+  },
+  "build": {
+    "appId": "com.openclaw.deployer",
+    "productName": "OpenClaw Deployer",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../",
+        "to": "openclaw-project",
+        "filter": ["**/*", "!node_modules", "!.git", "!deployer", "!dist", "!.openclaw-zero-state"]
+      }
+    ],
+    "mac": {
+      "target": ["dmg", "zip"],
+      "category": "public.app-category.developer-tools"
+    },
+    "win": {
+      "target": ["nsis", "portable"]
+    },
+    "linux": {
+      "target": ["AppImage", "deb"]
+    }
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  }
+}

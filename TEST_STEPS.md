@@ -7,8 +7,8 @@
 **目的**：编译 TypeScript 代码为可执行的 JavaScript
 
 ```bash
-npm install
-npm run build
+pnpm install
+pnpm run build
 ```
 
 **验证**：
@@ -175,7 +175,7 @@ manus-api/manus-1.6-lite
 ```
 ┌─────────────────────────────────────┐
 │ 1. 编译                             │
-│    npm install && npm run build     │
+│    pnpm install && pnpm run build     │
 └──────────────┬──────────────────────┘
                ↓
 ┌─────────────────────────────────────┐
@@ -293,8 +293,8 @@ node test/fix-glm-intl-api.js
 
 ```bash
 # 首次使用：安装依赖并编译
-npm install
-npm run build
+pnpm install
+pnpm run build
 
 # 关闭系统 Gateway
 openclaw gateway stop

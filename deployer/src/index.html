@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>OpenClaw 部署向导</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 0;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .container {
+      max-width: none;
+      margin: 0;
+      background: white;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .header-bar {
+      padding: 15px 30px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .screen.active {
+      display: flex;
+    }
+    #loadingScreen, #platformScreen, #deployScreen {
+      padding: 30px;
+    }
+    #serviceScreen {
+      padding: 0;
+    }
+    #serviceView {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .platforms {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .platform-card {
+      background: #f8f9fa;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .platform-card:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+    .platform-card.selected {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+    .platform-name {
+      font-weight: 600;
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    .platform-url {
+      font-size: 12px;
+      color: #666;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    button:hover { background: #5568d3; }
+    button:disabled { background: #cbd5e1; cursor: not-allowed; }
+    .output {
+      background: #1f2937;
+      color: #e5e7eb;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Monaco', monospace;
+      font-size: 12px;
+      height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      margin-bottom: 15px;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      padding-top: 15px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e5e7eb;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .progress-bar {
+      width: 100%;
+      max-width: 400px;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      margin: 20px auto 0;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .icon-btn {
+      background: transparent;
+      color: #667eea;
+      border: 1px solid #667eea;
+      padding: 8px 16px;
+      font-size: 18px;
+      min-width: auto;
+      display: none;
+    }
+    .icon-btn.visible {
+      display: block;
+    }
+    .icon-btn:hover {
+      background: #f0f4ff;
+    }
+    .settings-menu {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 30px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      min-width: 180px;
+    }
+    .settings-menu.show {
+      display: block;
+    }
+    .settings-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 14px;
+    }
+    .settings-item:hover {
+      background: #f8f9fa;
+    }
+    .settings-item:first-child {
+      border-radius: 8px 8px 0 0;
+    }
+    .settings-item:last-child {
+      border-radius: 0 0 8px 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-bar" style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 style="margin: 0;">🚀 OpenClaw 部署向导</h1>
+        <p class="subtitle" style="margin: 5px 0 0;">零 API Token 成本 AI 模型访问工具 - 一键部署</p>
+      </div>
+      <button id="settingsBtn" class="icon-btn" title="设置">⚙️</button>
+    </div>
+
+    <div id="settingsMenu" class="settings-menu">
+      <div class="settings-item" id="backToPlatforms">🔙 返回选择平台</div>
+      <div class="settings-item" id="clearConfig">🗑️ 清空配置信息</div>
+    </div>
+
+    <div id="loadingScreen" class="screen active">
+      <div style="text-align: center; padding: 60px 0;">
+        <div class="spinner"></div>
+        <h2 style="margin: 30px 0 10px;">正在初始化...</h2>
+        <p id="loadingText" style="color: #666;">准备环境</p>
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="platformScreen" class="screen">
+      <h2 style="margin-bottom: 20px;">选择要配置的 AI 平台</h2>
+      <div class="platforms" id="platforms"></div>
+      <div class="actions">
+        <button id="startBtn" disabled>开始配置</button>
+      </div>
+    </div>
+
+    <div id="deployScreen" class="screen">
+      <div class="output" id="output"></div>
+      <div class="actions">
+        <button id="backBtn">返回</button>
+      </div>
+    </div>
+
+    <div id="serviceScreen" class="screen">
+      <webview id="serviceView" nodeintegration></webview>
+    </div>
+  </div>
+  <script src="renderer.js"></script>
+</body>
+</html>

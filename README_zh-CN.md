@@ -151,7 +151,7 @@ Agent 的文件访问范围受配置中的**工作区**目录限制（见配置�
 
 ### 配置步骤
 
-1. **编译**：下载项目后执行`npm install && npm run build && pnpm ui:build`
+1. **编译**：下载项目后执行`pnpm install && pnpm run build && pnpm ui:build`
 2. **打开浏览器调试**：`./start-chrome-debug.sh`
 3. **登录各大网站**：在 Chrome 中登录各模型网页版
 4. **配置 onboard**：`./onboard.sh`
@@ -188,7 +188,7 @@ Agent 的文件访问范围受配置中的**工作区**目录限制（见配置�
 │                                                                      │
 │  首次使用流程：                                                      │
 │  ┌──────────────────────────────────────────────────────────────┐  │
-│  │ 1. 编译                npm install && npm run build && pnpm ui:build │  │
+│  │ 1. 编译                pnpm install && pnpm run build && pnpm ui:build │  │
 │  │ 2. 打开浏览器调试       ./start-chrome-debug.sh               │  │
 │  │ 3. 登录各大网站         千问国际版/国内版、Kimi 等 
 │  │ 4. 配置 onboard        ./onboard.sh                          │  │
@@ -228,7 +228,7 @@ cd openclaw-zero-token
 ```
 #### 安装依赖
 ```bash
-pnpm install
+ppnpm install
 ```
 
 #### 启动项目

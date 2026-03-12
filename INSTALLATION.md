@@ -64,7 +64,7 @@ cd openclaw-zero-token
 ### 步骤 2：安装依赖
 
 ```bash
-npm install
+pnpm install
 ```
 
 **预期输出**：
@@ -81,7 +81,7 @@ npm cache clean --force
 rm -rf node_modules package-lock.json
 
 # 重新安装
-npm install
+pnpm install
 ```
 
 ---
@@ -89,7 +89,7 @@ npm install
 ### 步骤 3：编译代码
 
 ```bash
-npm run build
+pnpm run build
 pnpm ui:build   # 构建 Web UI，访问 http://127.0.0.1:3001 时需要
 ```
 
@@ -149,8 +149,8 @@ cat .openclaw-zero-state/agents/main/agent/auth-profiles.json
 - [ ] Node.js 已安装（v22.12+）
 - [ ] npm 已安装
 - [ ] pnpm 已安装
-- [ ] 依赖已安装（`npm install`）
-- [ ] 代码已编译（`npm run build`）
+- [ ] 依赖已安装（`pnpm install`）
+- [ ] 代码已编译（`pnpm run build`）
 - [ ] `dist/index.mjs` 文件存在
 - [ ] Google Chrome 已安装
 
@@ -167,7 +167,7 @@ cat .openclaw-zero-state/agents/main/agent/auth-profiles.json
 
 ## 🔧 常见问题
 
-### Q1: npm install 失败
+### Q1: pnpm install 失败
 
 **A**: 尝试以下方法：
 ```bash
@@ -175,10 +175,10 @@ cat .openclaw-zero-state/agents/main/agent/auth-profiles.json
 npm config set registry https://registry.npmmirror.com
 
 # 重新安装
-npm install
+pnpm install
 ```
 
-### Q2: npm run build 失败
+### Q2: pnpm run build 失败
 
 **A**: 检查 Node.js 版本：
 ```bash
@@ -192,8 +192,8 @@ node --version
 
 **A**: 不要使用 sudo：
 ```bash
-# 错误：sudo npm install
-# 正确：npm install
+# 错误：sudo pnpm install
+# 正确：pnpm install
 ```
 
 ### Q4: 磁盘空间不足
@@ -212,16 +212,16 @@ df -h
 
 ```bash
 # 安装依赖
-npm install
+pnpm install
 
 # 编译代码
-npm run build
+pnpm run build
 
 # 清理编译产物
 rm -rf dist
 
 # 重新编译
-npm run build
+pnpm run build
 
 # 查看 npm 脚本
 npm run

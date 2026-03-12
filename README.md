@@ -88,7 +88,7 @@ The agent’s file access is limited to the configured **workspace** directory (
 
 ```bash
 # 1. Build
-pnpm install && pnpm build && pnpm ui:build
+ppnpm install && pnpm build && pnpm ui:build
 
 # 2. Open browser debug
 ./start-chrome-debug.sh
@@ -143,7 +143,7 @@ The project provides several helper scripts for different scenarios:
 │                                                                      │
 │  First-time setup:                                                   │
 │  ┌──────────────────────────────────────────────────────────────┐  │
-│  │ 1. Build              pnpm install && pnpm build && pnpm ui:build │  │
+│  │ 1. Build              ppnpm install && pnpm build && pnpm ui:build │  │
 │  │ 2. Open browser debug  ./start-chrome-debug.sh               │  │
 │  │ 3. Login to platforms  Qwen, Kimi, Claude, etc. (excl. DeepSeek) │  │
 │  │ 4. Configure onboard   ./onboard.sh                          │  │
@@ -176,7 +176,7 @@ git clone https://github.com/linuxhsj/openclaw-zero-token.git
 cd openclaw-zero-token
 
 # Install dependencies
-pnpm install
+ppnpm install
 ```
 
 ### Startup

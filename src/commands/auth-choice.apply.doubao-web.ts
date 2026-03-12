@@ -42,8 +42,7 @@ export async function applyAuthChoiceDoubaoWeb(
       await prompter.note(
         [
           "To use your existing Chrome:",
-          "1. Start Chrome with remote debugging:",
-          "   /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222",
+          "1. Make sure Chrome is running with remote debugging (port 3004 or 9222)",
           "2. Login to https://www.doubao.com/chat/ in that Chrome",
           "3. Click 'Continue' below",
         ].join("\n"),
@@ -59,7 +58,6 @@ export async function applyAuthChoiceDoubaoWeb(
             return true;
           },
           useExistingChrome: true,
-          existingCdpPort: 9222,
         });
         spin.stop("Connected to existing Chrome successfully!");
         sessionid = result.sessionid;

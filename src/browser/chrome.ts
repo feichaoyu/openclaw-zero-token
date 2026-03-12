@@ -248,9 +248,10 @@ export async function launchOpenClawChrome(
     ];
 
     if (resolved.headless) {
-      // Best-effort; older Chromes may ignore.
-      args.push("--headless=new");
+      // Modern Chrome headless flag
+      args.push("--headless");
       args.push("--disable-gpu");
+      args.push("--mute-audio");
     }
     if (resolved.noSandbox) {
       args.push("--no-sandbox");

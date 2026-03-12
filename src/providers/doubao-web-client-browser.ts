@@ -66,8 +66,17 @@ export class DoubaoWebClientBrowser {
   }
 
   private async ensureBrowser() {
+    // 检查现有浏览器和页面是否仍然有效
     if (this.browser && this.page) {
-      return { browser: this.browser, page: this.page };
+      try {
+        // 尝试获取页面 URL 来验证页面是否仍然有效
+        await this.page.evaluate(() => true);
+        return { browser: this.browser, page: this.page };
+      } catch (err) {
+        console.log(`[Doubao Web Browser] Cached page is closed, reconnecting...`);
+        this.browser = null;
+        this.page = null;
+      }
     }
 
     const rootConfig = loadConfig();
@@ -173,18 +182,45 @@ export class DoubaoWebClientBrowser {
   }
 
   async chatCompletions(params: {
-    messages: Array<{ role: string; content: string }>;
+    sessionId?: string;
+    message: string;
     model?: string;
     signal?: AbortSignal;
   }): Promise<ReadableStream<Uint8Array>> {
-    const { page } = await this.ensureBrowser();
+    let page: Page;
+    let retries = 0;
+    const maxRetries = 2;
+
+    // 重试机制：如果页面关闭，重新连接
+    while (retries <= maxRetries) {
+      try {
+        const result = await this.ensureBrowser();
+        page = result.page;
+
+        // 验证页面仍然有效
+        await page.evaluate(() => true);
+        break;
+      } catch (err) {
+        retries++;
+        console.log(`[Doubao Web Browser] Page validation failed (attempt ${retries}/${maxRetries + 1}): ${err.message}`);
+
+        if (retries > maxRetries) {
+          throw new Error(`Failed to connect to browser after ${maxRetries + 1} attempts. Please ensure Chrome is running on port 3004.`);
+        }
+
+        // 清空缓存，强制重新连接
+        this.browser = null;
+        this.page = null;
+        await new Promise(r => setTimeout(r, 1000));
+      }
+    }
 
     const modelId = params.model || "doubao-seed-2.0";
-    const text = this.mergeMessagesForSamantha(params.messages);
+    const text = params.message;
 
     console.log(`[Doubao Web Browser] Sending message`);
     console.log(`[Doubao Web Browser] Model: ${modelId}`);
-    console.log(`[Doubao Web Browser] Messages count: ${params.messages.length}`);
+    console.log(`[Doubao Web Browser] Message length: ${text.length}`);
 
     // 构建请求体
     const requestBody = {
@@ -214,55 +250,59 @@ export class DoubaoWebClientBrowser {
     // 在浏览器上下文中执行请求（关键！）
     const responseData = await page.evaluate(
       async ({ baseUrl, body }) => {
-        // 构建查询参数（浏览器会自动生成动态参数）
-        const params = new URLSearchParams({
-          aid: "497858",
-          device_platform: "web",
-          language: "zh",
-          pkg_type: "release_version",
-          real_aid: "497858",
-          region: "CN",
-          samantha_web: "1",
-          sys_region: "CN",
-          use_olympus_account: "1",
-          version_code: "20800",
-        });
+        try {
+          // 构建查询参数（浏览器会自动生成动态参数）
+          const params = new URLSearchParams({
+            aid: "497858",
+            device_platform: "web",
+            language: "zh",
+            pkg_type: "release_version",
+            real_aid: "497858",
+            region: "CN",
+            samantha_web: "1",
+            sys_region: "CN",
+            use_olympus_account: "1",
+            version_code: "20800",
+          });
 
-        const url = `${baseUrl}/samantha/chat/completion?${params.toString()}`;
+          const url = `${baseUrl}/samantha/chat/completion?${params.toString()}`;
 
-        const res = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "text/event-stream",
-            "Referer": "https://www.doubao.com/chat/",
-            "Origin": "https://www.doubao.com",
-            "Agw-js-conv": "str",
-          },
-          body: JSON.stringify(body),
-        });
+          const res = await fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "text/event-stream",
+              "Referer": "https://www.doubao.com/chat/",
+              "Origin": "https://www.doubao.com",
+              "Agw-js-conv": "str",
+            },
+            body: JSON.stringify(body),
+          });
 
-        if (!res.ok) {
-          const errorText = await res.text();
-          return { ok: false, status: res.status, error: errorText };
+          if (!res.ok) {
+            const errorText = await res.text();
+            return { ok: false, status: res.status, error: errorText };
+          }
+
+          // 读取流式响应
+          const reader = res.body?.getReader();
+          if (!reader) {
+            return { ok: false, status: 500, error: "No response body" };
+          }
+
+          const decoder = new TextDecoder();
+          let fullText = "";
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            fullText += decoder.decode(value, { stream: true });
+          }
+
+          return { ok: true, data: fullText };
+        } catch (err) {
+          return { ok: false, status: 500, error: `Fetch failed: ${err.message || String(err)}` };
         }
-
-        // 读取流式响应
-        const reader = res.body?.getReader();
-        if (!reader) {
-          return { ok: false, status: 500, error: "No response body" };
-        }
-
-        const decoder = new TextDecoder();
-        let fullText = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          fullText += decoder.decode(value, { stream: true });
-        }
-
-        return { ok: true, data: fullText };
       },
       { baseUrl: this.baseUrl, body: requestBody },
     );
@@ -281,6 +321,7 @@ export class DoubaoWebClientBrowser {
     }
 
     console.log(`[Doubao Web Browser] Response data length: ${responseData.data?.length || 0} bytes`);
+    console.log(`[Doubao Web Browser] Response data preview: ${responseData.data?.substring(0, 500)}`);
 
     // 转换为 ReadableStream
     const encoder = new TextEncoder();

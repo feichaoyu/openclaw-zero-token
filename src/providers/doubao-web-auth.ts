@@ -24,12 +24,10 @@ export async function loginDoubaoWeb(params: {
   onProgress: (msg: string) => void;
   openUrl: (url: string) => Promise<boolean>;
   useExistingChrome?: boolean;
-  existingCdpPort?: number;
   useExistingChromeData?: boolean;
 }) {
   const {
     useExistingChrome = false,
-    existingCdpPort = DEFAULT_CDP_PORT,
     useExistingChromeData = false,
   } = params;
 
@@ -42,11 +40,11 @@ export async function loginDoubaoWeb(params: {
 
   const useAttach = browserConfig.attachOnly || useExistingChrome;
 
-  let running: Awaited<ReturnType<typeof launchOpenClawChrome>> | { cdpPort: number };
+  let running: Awaited<ReturnType<typeof launchOpenClawChrome>> | { cdpPort?: number; cdpUrl?: string };
   let didLaunch = false;
 
   if (useAttach) {
-    const cdpUrl = browserConfig.attachOnly ? profile.cdpUrl : `http://127.0.0.1:${existingCdpPort}`;
+    const cdpUrl = profile.cdpUrl || `http://127.0.0.1:${profile.cdpPort || DEFAULT_CDP_PORT}`;
     params.onProgress(`Connecting to existing Chrome at ${cdpUrl}...`);
 
     const isReachable = await isChromeReachable(cdpUrl, 1000);
@@ -57,7 +55,7 @@ export async function loginDoubaoWeb(params: {
       );
     }
 
-    running = { cdpPort: browserConfig.attachOnly ? profile.cdpPort : existingCdpPort };
+    running = { cdpUrl };
   } else if (useExistingChromeData) {
     params.onProgress("Launching Chrome with existing user data...");
 
@@ -81,7 +79,7 @@ export async function loginDoubaoWeb(params: {
 
   try {
     const cdpUrl = useAttach
-      ? (browserConfig.attachOnly ? profile.cdpUrl : `http://127.0.0.1:${existingCdpPort}`)
+      ? (running.cdpUrl || `http://127.0.0.1:${running.cdpPort || DEFAULT_CDP_PORT}`)
       : `http://127.0.0.1:${running.cdpPort}`;
     let wsUrl: string | null = null;
 

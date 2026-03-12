@@ -53,6 +53,28 @@ import {
   setZaiApiKey,
   setSiliconFlowGlobalApiKey,
   setSiliconFlowCnApiKey,
+  setDoubaoWebCookie,
+  setDeepseekWebCookie,
+  setClaudeWebCookie,
+  setChatGPTWebCookie,
+  setQwenWebCookie,
+  setQwenCNWebCredentials,
+  setKimiWebCookie,
+  setGeminiWebCookie,
+  setGrokWebCookie,
+  setZWebCookie,
+  setGlmIntlWebCookie,
+  applyDoubaoWebConfig,
+  applyDeepseekWebConfig,
+  applyClaudeWebConfig,
+  applyChatGPTWebConfig,
+  applyQwenWebConfig,
+  applyQwenCNWebConfig,
+  applyKimiWebConfig,
+  applyGeminiWebConfig,
+  applyGrokWebConfig,
+  applyGlmWebConfig,
+  applyGlmIntlWebConfig,
 } from "../../onboard-auth.js";
 import {
   applyCustomApiConfig,
@@ -64,7 +86,6 @@ import type { AuthChoice, OnboardOptions } from "../../onboard-types.js";
 import { applyOpenAIConfig } from "../../openai-model-default.js";
 import { detectZaiEndpoint } from "../../zai-endpoint-detect.js";
 import { resolveNonInteractiveApiKey } from "../api-keys.js";
-
 export async function applyNonInteractiveAuthChoice(params: {
   nextConfig: OpenClawConfig;
   authChoice: AuthChoice;
@@ -795,6 +816,196 @@ export async function applyNonInteractiveAuthChoice(params: {
       runtime.exit(1);
       return null;
     }
+  }
+
+  if (authChoice === "doubao-web") {
+    const rawValue = opts.doubaoWebCookie?.trim();
+    if (!rawValue) {
+      runtime.error("Missing --doubao-web-cookie for --auth-choice doubao-web.");
+      runtime.exit(1);
+      return null;
+    }
+
+    let cookie = rawValue;
+    let userAgent: string | undefined;
+
+    try {
+      const parsed = JSON.parse(rawValue);
+      if (typeof parsed === "object" && parsed !== null) {
+        cookie = parsed.cookie || parsed.sessionid || rawValue;
+        userAgent = parsed.userAgent;
+      }
+    } catch {
+      // Not JSON, use as is
+    }
+
+    await setDoubaoWebCookie({ cookie, userAgent });
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "doubao-web:default",
+      provider: "doubao-web",
+      mode: "api_key",
+    });
+    return await applyDoubaoWebConfig(nextConfig);
+  }
+
+  if (authChoice === "deepseek-web") {
+    const rawValue = opts.deepseekWebCookie?.trim();
+    if (!rawValue) {
+      runtime.error("Missing --deepseek-web-cookie for --auth-choice deepseek-web.");
+      runtime.exit(1);
+      return null;
+    }
+
+    let cookie = rawValue;
+    let bearer = process.env.DEEPSEEK_BEARER_TOKEN?.trim() || "";
+    let userAgent: string | undefined;
+
+    try {
+      const parsed = JSON.parse(rawValue);
+      if (typeof parsed === "object" && parsed !== null) {
+        cookie = parsed.cookie || rawValue;
+        if (parsed.bearer) bearer = parsed.bearer;
+        userAgent = parsed.userAgent;
+      }
+    } catch {
+      // Not JSON, use as is
+    }
+
+    await setDeepseekWebCookie({ cookie, bearer, userAgent });
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "deepseek-web:default",
+      provider: "deepseek-web",
+      mode: "api_key",
+    });
+    return await applyDeepseekWebConfig(nextConfig);
+  }
+
+  if (authChoice === "claude-web") {
+    const cookie = opts.claudeWebCookie?.trim();
+    if (!cookie) {
+      runtime.error("Missing --claude-web-cookie for --auth-choice claude-web.");
+      runtime.exit(1);
+      return null;
+    }
+    await setClaudeWebCookie({ sessionKey: cookie, cookie });
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "claude-web:default",
+      provider: "claude-web",
+      mode: "api_key",
+    });
+    return await applyClaudeWebConfig(nextConfig);
+  }
+
+  if (authChoice === "chatgpt-web") {
+    const cookie = opts.chatgptWebCookie?.trim();
+    if (!cookie) {
+      runtime.error("Missing --chatgpt-web-cookie for --auth-choice chatgpt-web.");
+      runtime.exit(1);
+      return null;
+    }
+    await setChatGPTWebCookie({ cookie });
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "chatgpt-web:default",
+      provider: "chatgpt-web",
+      mode: "api_key",
+    });
+    return await applyChatGPTWebConfig(nextConfig);
+  }
+
+  if (authChoice === "qwen-web") {
+    const cookie = opts.qwenWebCookie?.trim();
+    if (!cookie) {
+      runtime.error("Missing --qwen-web-cookie for --auth-choice qwen-web.");
+      runtime.exit(1);
+      return null;
+    }
+    await setQwenWebCookie({ cookie });
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "qwen-web:default",
+      provider: "qwen-web",
+      mode: "api_key",
+    });
+    return await applyQwenWebConfig(nextConfig);
+  }
+
+  if (authChoice === "kimi-web") {
+    const cookie = opts.kimiWebCookie?.trim();
+    if (!cookie) {
+      runtime.error("Missing --kimi-web-cookie for --auth-choice kimi-web.");
+      runtime.exit(1);
+      return null;
+    }
+    await setKimiWebCookie({ cookie });
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "kimi-web:default",
+      provider: "kimi-web",
+      mode: "api_key",
+    });
+    return await applyKimiWebConfig(nextConfig);
+  }
+
+  if (authChoice === "gemini-web") {
+    const cookie = opts.geminiWebCookie?.trim();
+    if (!cookie) {
+      runtime.error("Missing --gemini-web-cookie for --auth-choice gemini-web.");
+      runtime.exit(1);
+      return null;
+    }
+    await setGeminiWebCookie({ cookie });
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "gemini-web:default",
+      provider: "gemini-web",
+      mode: "api_key",
+    });
+    return await applyGeminiWebConfig(nextConfig);
+  }
+
+  if (authChoice === "grok-web") {
+    const cookie = opts.grokWebCookie?.trim();
+    if (!cookie) {
+      runtime.error("Missing --grok-web-cookie for --auth-choice grok-web.");
+      runtime.exit(1);
+      return null;
+    }
+    await setGrokWebCookie({ cookie });
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "grok-web:default",
+      provider: "grok-web",
+      mode: "api_key",
+    });
+    return await applyGrokWebConfig(nextConfig);
+  }
+
+  if (authChoice === "z-web" || authChoice === "glm-web") {
+    const cookie = opts.zWebCookie?.trim();
+    if (!cookie) {
+      runtime.error("Missing --z-web-cookie for --auth-choice z-web.");
+      runtime.exit(1);
+      return null;
+    }
+    await setZWebCookie({ cookie });
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "glm-web:default",
+      provider: "glm-web",
+      mode: "api_key",
+    });
+    return await applyGlmWebConfig(nextConfig);
+  }
+
+  if (authChoice === "glm-intl-web") {
+    const cookie = opts.glmIntlWebCookie?.trim();
+    if (!cookie) {
+      runtime.error("Missing --glm-intl-web-cookie for --auth-choice glm-intl-web.");
+      runtime.exit(1);
+      return null;
+    }
+    await setGlmIntlWebCookie({ cookie });
+    nextConfig = applyAuthProfileConfig(nextConfig, {
+      profileId: "glm-intl-web:default",
+      provider: "glm-intl-web",
+      mode: "api_key",
+    });
+    return await applyGlmIntlWebConfig(nextConfig);
   }
 
   if (

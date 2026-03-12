@@ -81,6 +81,8 @@ export function registerOnboardCommand(program: Command) {
     command.option(providerFlag.cliOption, providerFlag.description);
   }
 
+
+
   command
     .option("--custom-base-url <url>", "Custom provider base URL")
     .option("--custom-api-key <key>", "Custom provider API key (optional)")
@@ -152,6 +154,16 @@ export function registerOnboardCommand(program: Command) {
           litellmApiKey: opts.litellmApiKey as string | undefined,
           siliconflowGlobalApiKey: opts.siliconflowApiKey as string | undefined,
           siliconflowCnApiKey: opts.siliconflowCnApiKey as string | undefined,
+          doubaoWebCookie: opts.doubaoWebCookie as string | undefined,
+          deepseekWebCookie: opts.deepseekWebCookie as string | undefined,
+          chatgptWebCookie: opts.chatgptWebCookie as string | undefined,
+          qwenWebCookie: opts.qwenWebCookie as string | undefined,
+          kimiWebCookie: opts.kimiWebCookie as string | undefined,
+          geminiWebCookie: opts.geminiWebCookie as string | undefined,
+          grokWebCookie: opts.grokWebCookie as string | undefined,
+          zWebCookie: opts.zWebCookie as string | undefined,
+          glmIntlWebCookie: opts.glmIntlWebCookie as string | undefined,
+          manusWebCookie: opts.manusWebCookie as string | undefined,
           customBaseUrl: opts.customBaseUrl as string | undefined,
           customApiKey: opts.customApiKey as string | undefined,
           customModelId: opts.customModelId as string | undefined,

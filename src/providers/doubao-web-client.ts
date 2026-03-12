@@ -218,6 +218,9 @@ export class DoubaoWebClient {
 
   /** 将多轮消息合并为 samantha 接口需要的单条 content（纯文本） */
   private mergeMessagesForSamantha(messages: DoubaoMessage[]): string {
+    if (!messages || !Array.isArray(messages)) {
+      return "";
+    }
     return messages
       .map(m => {
         const role = m.role === "user" ? "user" : m.role === "assistant" ? "assistant" : "system";
@@ -269,7 +272,7 @@ export class DoubaoWebClient {
           bot_id: "7338286299411103781",
         },
         ext: { use_deep_think: "0", fp: this.config.fp || "" },
-        messages: request.messages.map(msg => ({ role: msg.role, content: msg.content })),
+        messages: (request.messages || []).map(msg => ({ role: msg.role, content: msg.content })),
         option: { send_message_scene: "", create_time_ms: Date.now(), collect_id: "", is_audio: false },
       });
     }
